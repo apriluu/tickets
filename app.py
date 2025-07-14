@@ -45,19 +45,19 @@ if upload:
         # 📤 Envia la imatge comprimida a l'OCR
         result = ocr_space_file(compressed)
 
-    if not result or "ParsedResults" not in result:
-        st.error("❌ Error en la resposta de l'OCR.")
-        st.write(result)  # Mostra la resposta completa per depurar
+        if not result or "ParsedResults" not in result:
+            st.error("❌ Error en la resposta de l'OCR.")
+            st.write(result)  # Mostra la resposta completa per depurar
 
-    else:
-        parsed = result["ParsedResults"][0]["ParsedText"]
-        dades = extreu_dades(parsed)
-        st.success("✅ Dades extretes:")
-        st.json(dades)
+        else:
+            parsed = result["ParsedResults"][0]["ParsedText"]
+            dades = extreu_dades(parsed)
+            st.success("✅ Dades extretes:")
+            st.json(dades)
 
-        df = pd.DataFrame([dades])
-        buf = BytesIO()
-        df.to_excel(buf, index=False, engine='openpyxl')
-        buf.seek(0)
-        st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
+            df = pd.DataFrame([dades])
+            buf = BytesIO()
+            df.to_excel(buf, index=False, engine='openpyxl')
+            buf.seek(0)
+            st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
 

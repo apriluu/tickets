@@ -30,15 +30,14 @@ def extreu_dades(text):
 
     for i, línia in enumerate(línies):
         if "TOTAL" in línia.upper():
-            # 📌 Mira les línies anteriors, fins 3 cap amunt
+            tots_els_imports = []
             for j in range(i - 1, max(i - 4, -1), -1):
-                possibles_imports = re.findall(r'(\d+[.,]\d{2})', línies[j])
-                if possibles_imports:
-                    # Agafa el número més gran (suposadament el total)
-                    import_final = max(possibles_imports, key=lambda x: float(x.replace(',', '.')))
-                    import_final = import_final.replace('.', ',')
-                    break
-            break
+                possibles = re.findall(r'(\d+[.,]\d{2})', línies[j])
+                tots_els_imports.extend(possibles)
+
+            if tots_els_imports:
+                import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
+                import_final = import_final.replace('.', ',')
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",

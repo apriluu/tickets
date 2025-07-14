@@ -21,34 +21,31 @@ def ocr_space_file(image_bytes):
 
 def extreu_dades(text):
     import re
-
     empresa = re.search(r'MARC GIOVANNI ADDIS HERNANDEZ', text, re.IGNORECASE)
     data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
     línies = text.splitlines()
     import_final = None
 
-    for línia in línies:
+    for i, línia in enumerate(línies):
         if "TOTAL" in línia.upper():
-            # Busquem un nombre que vingui després de la paraula TOTAL
-            match = re.search(r'TOTAL.*?(\d+[.,]\d{2})', línia.upper())
-            if match:
-                import_final = match.group(1).replace('.', ',')
+            # Busca el número a la mateixa línia
+            match_mateixa = re.search(r'(\d+[.,]\d{2})', línia)
+            if match_mateixa:
+                import_final = match_mateixa.group(1).replace('.', ',')
                 break
-            else:
-                # Si no està a la mateixa línia, busquem qualsevol nombre a la dreta
-                parts = línia.split()
-                for part in parts:
-                    if re.match(r'\d+[.,]\d{2}', part):
-                        import_final = part.replace('.', ',')
-                        break
+            # Si no hi ha número a la mateixa línia, mira la línia anterior
+            if i > 0:
+                match_abans = re.search(r'(\d+[.,]\d{2})', línies[i - 1])
+                if match_abans:
+                    import_final = match_abans.group(1).replace('.', ',')
+                    break
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",
         "Data": data.group(1) if data else "",
         "Import": import_final if import_final else "0,00"
     }
-
 
 
 

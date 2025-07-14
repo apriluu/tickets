@@ -22,7 +22,7 @@ def ocr_space_file(image_bytes):
 def extreu_dades(text):
     import re
 
-    empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
+    empresa = re.search(r'MARC GIOVANNI ADDIS HERNANDEZ', text, re.IGNORECASE)
     data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
     línies = text.splitlines()
@@ -30,26 +30,20 @@ def extreu_dades(text):
 
     for i, línia in enumerate(línies):
         if "TOTAL" in línia.upper():
-            imports_posibles = re.findall(r'(\d+[.,]\d{2})', línia)
+            tots_els_imports = []
             for j in range(i - 1, max(i - 4, -1), -1):
-                imports_posibles += re.findall(r'(\d+[.,]\d{2})', línies[j])
-            if imports_posibles:
-                import_final = max(imports_posibles, key=lambda x: float(x.replace(',', '.')))
-                import_final = import_final.replace('.', ',')
-                break
+                possibles = re.findall(r'(\d+[.,]\d{2})', línies[j])
+                tots_els_imports.extend(possibles)
 
-    if not import_final:
-        tots_els_imports = re.findall(r'(\d+[.,]\d{2})', text)
-        if tots_els_imports:
-            import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
-            import_final = import_final.replace('.', ',')
+            if tots_els_imports:
+                import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
+                import_final = import_final.replace('.', ',')
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",
         "Data": data.group(1) if data else "",
         "Import": import_final if import_final else "0,00"
     }
-
 
 
 st.title("🧾 Lectura de tiquets")

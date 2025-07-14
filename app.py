@@ -7,6 +7,21 @@ from PIL import Image
 # 📌 Personalitza aquí la clau API d'OCR.space
 OCR_SPACE_API_KEY = st.secrets["ocr_space_api"]
 
+# 👇 Afegeix això just abans de cridar a ocr_space_file()
+from PIL import ImageOps
+
+# Redueix mida a JPEG de baixa qualitat
+img = Image.open(upload)
+img = img.convert("RGB")
+compressed = BytesIO()
+img.save(compressed, format="JPEG", optimize=True, quality=50)
+compressed.seek(0)
+
+# Envia aquesta imatge comprimida
+result = ocr_space_file(compressed)
+
+
+
 def ocr_space_file(image_bytes):
     payload = {
         'apikey': OCR_SPACE_API_KEY,
@@ -22,7 +37,6 @@ def ocr_space_file(image_bytes):
 def extreu_dades(text):
     import re
     empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
-    data_hora = re.search(r'(\d{2}/\d{2}/\d{4}).*?(\d{2}:\d{2})', text)
     import_final = re.search(r'(?:TOTAL|Import).*?(\d+[,\.]\d{2})', text, re.IGNORECASE)
     return {
         "Empresa": empresa.group(1).strip() if empresa else "Desconeguda",
@@ -33,10 +47,19 @@ st.title("🧾 Lectura de tiquets via OCR.space")
 upload = st.file_uploader("Puja una imatge (.jpg, .png)", type=['jpg', 'jpeg', 'png'])
 
 if upload:
-    img = Image.open(upload)
-    st.image(img, caption="Tiquet", use_container_width=True)
-    if st.button("Processa i genera Excel"):
-        result = ocr_space_file(upload.getvalue())
+    if upload:
+        img = Image.open(upload)
+        st.image(img, caption="Tiquet", use_container_width=True)
+
+        if st.button("Processa i genera Excel"):
+            # 🔽 Converteix i comprimeix la imatge
+            img = img.convert("RGB")
+            compressed = BytesIO()
+            img.save(compressed, format="JPEG", optimize=True, quality=50)
+            compressed.seek(0)
+
+            # 📤 Envia la imatge comprimida a l'OCR
+            result = ocr_space_file(compressed)
 
         if not result or "ParsedResults" not in result:
             st.error("❌ Error en la resposta de l'OCR.")

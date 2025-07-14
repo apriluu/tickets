@@ -7,21 +7,6 @@ from PIL import Image
 # 📌 Personalitza aquí la clau API d'OCR.space
 OCR_SPACE_API_KEY = st.secrets["ocr_space_api"]
 
-# 👇 Afegeix això just abans de cridar a ocr_space_file()
-from PIL import ImageOps
-
-# Redueix mida a JPEG de baixa qualitat
-img = Image.open(upload)
-img = img.convert("RGB")
-compressed = BytesIO()
-img.save(compressed, format="JPEG", optimize=True, quality=50)
-compressed.seek(0)
-
-# Envia aquesta imatge comprimida
-result = ocr_space_file(compressed)
-
-
-
 def ocr_space_file(image_bytes):
     payload = {
         'apikey': OCR_SPACE_API_KEY,

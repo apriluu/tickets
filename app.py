@@ -39,7 +39,9 @@ if upload:
         result = ocr_space_file(upload.getvalue())
 
         if not result or "ParsedResults" not in result:
-            st.error("❌ No s'ha pogut llegir el tiquet. Revisa la clau API o torna-ho a intentar.")
+            st.error("❌ Error en la resposta de l'OCR.")
+            st.write(result)  # Mostra la resposta completa per depurar
+
         else:
             parsed = result["ParsedResults"][0]["ParsedText"]
             dades = extreu_dades(parsed)

@@ -21,6 +21,7 @@ def ocr_space_file(image_bytes):
 
 def extreu_dades(text):
     import re
+
     empresa = re.search(r'MARC GIOVANNI ADDIS HERNANDEZ', text, re.IGNORECASE)
     data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
@@ -29,16 +30,21 @@ def extreu_dades(text):
 
     for i, línia in enumerate(línies):
         if "TOTAL" in línia.upper():
-            # Busca el número a la mateixa línia
-            match_mateixa = re.search(r'(\d+[.,]\d{2})', línia)
-            if match_mateixa:
-                import_final = match_mateixa.group(1).replace('.', ',')
+            match_inline = re.findall(r'(\d+[.,]\d{2})', línia)
+            if match_inline:
+                import_final = match_inline[-1].replace('.', ',')  # Agafa l'últim número
                 break
-            # Si no hi ha número a la mateixa línia, mira la línia anterior
             if i > 0:
-                match_abans = re.search(r'(\d+[.,]\d{2})', línies[i - 1])
-                if match_abans:
-                    import_final = match_abans.group(1).replace('.', ',')
+                línia_previa = línies[i - 1]
+                match_sobre = re.findall(r'(\d+[.,]\d{2})', línia_previa)
+                if match_sobre:
+                    import_final = match_sobre[-1].replace('.', ',')
+                    break
+            if i + 1 < len(línies):
+                línia_sota = línies[i + 1]
+                match_dessota = re.findall(r'(\d+[.,]\d{2})', línia_sota)
+                if match_dessota:
+                    import_final = match_dessota[-1].replace('.', ',')
                     break
 
     return {
@@ -46,6 +52,7 @@ def extreu_dades(text):
         "Data": data.group(1) if data else "",
         "Import": import_final if import_final else "0,00"
     }
+
 
 
 

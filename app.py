@@ -22,13 +22,20 @@ def ocr_space_file(image_bytes):
 def extreu_dades(text):
     import re
 
-    match = re.search(r'(?i)(TOTAL[^0-9\n]*|Import[^0-9\n]*|Targeta[^0-9\n]*)?(\d+[.,]\d{2})', text)
-
     empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
+
+    línies = text.splitlines()
+    import_final = None
+    for línia in línies:
+        if re.search(r'(total|import|a pagar|a pagar amb targeta)', línia, re.IGNORECASE):
+            preu = re.search(r'(\d+[.,]\d{2})', línia)
+            if preu:
+                import_final = preu.group(1).replace('.', ',')
+                break
 
     return {
         "Empresa": empresa.group(1).strip() if empresa else "Desconeguda",
-        "Import": match.group(2).replace('.', ',') if match else "0,00"
+        "Import": import_final if import_final else "0,00"
     }
 
 st.title("🧾 Lectura de tiquets")
@@ -45,7 +52,6 @@ if upload:
         img.save(compressed, format="JPEG", optimize=True, quality=50)
         compressed.seek(0)
 
-        # 📤 Envia la imatge comprimida a l'OCR
         result = ocr_space_file(compressed)
 
         if not result or "ParsedResults" not in result:

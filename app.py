@@ -30,30 +30,21 @@ def extreu_dades(text):
 
     for i, línia in enumerate(línies):
         if "TOTAL" in línia.upper():
-            match_inline = re.findall(r'(\d+[.,]\d{2})', línia)
-            if match_inline:
-                import_final = match_inline[-1].replace('.', ',')  # Agafa l'últim número
-                break
-            if i > 0:
-                línia_previa = línies[i - 1]
-                match_sobre = re.findall(r'(\d+[.,]\d{2})', línia_previa)
-                if match_sobre:
-                    import_final = match_sobre[-1].replace('.', ',')
+            # 📌 Mira les línies anteriors, fins 3 cap amunt
+            for j in range(i - 1, max(i - 4, -1), -1):
+                possibles_imports = re.findall(r'(\d+[.,]\d{2})', línies[j])
+                if possibles_imports:
+                    # Agafa el número més gran (suposadament el total)
+                    import_final = max(possibles_imports, key=lambda x: float(x.replace(',', '.')))
+                    import_final = import_final.replace('.', ',')
                     break
-            if i + 1 < len(línies):
-                línia_sota = línies[i + 1]
-                match_dessota = re.findall(r'(\d+[.,]\d{2})', línia_sota)
-                if match_dessota:
-                    import_final = match_dessota[-1].replace('.', ',')
-                    break
+            break
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",
         "Data": data.group(1) if data else "",
         "Import": import_final if import_final else "0,00"
     }
-
-
 
 
 st.title("🧾 Lectura de tiquets")

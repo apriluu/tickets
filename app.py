@@ -26,12 +26,19 @@ def extreu_dades(text):
 
     línies = text.splitlines()
     import_final = None
-    for línia in línies:
-        if re.search(r'(total|import|a pagar|a pagar amb targeta)', línia, re.IGNORECASE):
-            preu = re.search(r'(\d+[.,]\d{2})', línia)
-            if preu:
-                import_final = preu.group(1).replace('.', ',')
-                break
+    for i, línia in enumerate(línies):
+        if "TOTAL" in línia.upper():
+            # Mirem si el número està a la mateixa línia
+            match = re.search(r'(\d+[.,]\d{2})', línia)
+            if match:
+                import_final = match.group(1).replace('.', ',')
+            else:
+                # Si no està a la mateixa línia, mirem la següent
+                if i + 1 < len(línies):
+                    match_sota = re.search(r'(\d+[.,]\d{2})', línies[i + 1])
+                    if match_sota:
+                        import_final = match_sota.group(1).replace('.', ',')
+            break
 
     return {
         "Empresa": empresa.group(1).strip() if empresa else "Desconeguda",

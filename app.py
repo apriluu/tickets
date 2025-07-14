@@ -21,37 +21,32 @@ def ocr_space_file(image_bytes):
 
 def extreu_dades(text):
     import re
+    empresa = re.search(r'MARC GIOVANNI ADDIS HERNANDEZ', text, re.IGNORECASE)
+    data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
-    # 🔍 Empresa: agafem el nom en majúscules abans de "Nif:"
-    empresa_match = re.search(r'([A-ZÀ-Ú\s]{5,})\s*\nNif:', text)
-    empresa = empresa_match.group(1).strip() if empresa_match else "Desconeguda"
-
-    # 🔍 Data
-    data_match = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
-    data = data_match.group(1) if data_match else ""
-
-    # 🔍 Preu total: busquem línia amb "TOTAL" i agafem número anterior si cal
-    linies = text.splitlines()
+    línies = text.splitlines()
     import_final = None
-    for i, linia in enumerate(linies):
-        if "TOTAL" in linia.upper():
-            # Comprova si el número està abans
-            if i >= 1:
-                num_match = re.search(r'(\d+[.,]\d{2})', linies[i - 1])
-                if num_match:
-                    import_final = num_match.group(1).replace('.', ',')
-                    break
-            # O a la mateixa línia (per si canvia en altres tiquets)
-            num_match = re.search(r'(\d+[.,]\d{2})', linia)
-            if num_match:
-                import_final = num_match.group(1).replace('.', ',')
+
+    for i, línia in enumerate(línies):
+        if "TOTAL" in línia.upper():
+            # Busca el número a la mateixa línia
+            match_mateixa = re.search(r'(\d+[.,]\d{2})', línia)
+            if match_mateixa:
+                import_final = match_mateixa.group(1).replace('.', ',')
                 break
+            # Si no hi ha número a la mateixa línia, mira la línia anterior
+            if i > 0:
+                match_abans = re.search(r'(\d+[.,]\d{2})', línies[i - 1])
+                if match_abans:
+                    import_final = match_abans.group(1).replace('.', ',')
+                    break
 
     return {
-        "Empresa": empresa,
-        "Data": data,
+        "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",
+        "Data": data.group(1) if data else "",
         "Import": import_final if import_final else "0,00"
     }
+
 
 
 st.title("🧾 Lectura de tiquets")

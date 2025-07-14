@@ -37,14 +37,18 @@ if upload:
     st.image(img, caption="Tiquet", use_container_width=True)
     if st.button("Processa i genera Excel"):
         result = ocr_space_file(upload.getvalue())
-        if result.get("IsErroredOnProcessing"):
-            st.error("Error en processar la imatge")
+
+        if not result or "ParsedResults" not in result:
+            st.error("❌ No s'ha pogut llegir el tiquet. Revisa la clau API o torna-ho a intentar.")
         else:
             parsed = result["ParsedResults"][0]["ParsedText"]
             dades = extreu_dades(parsed)
+            st.success("✅ Dades extretes:")
             st.json(dades)
+
             df = pd.DataFrame([dades])
             buf = BytesIO()
             df.to_excel(buf, index=False, engine='openpyxl')
             buf.seek(0)
             st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
+

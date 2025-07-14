@@ -15,7 +15,7 @@ def ocr_space_file(image_bytes):
         'isTable': False,
         'detectOrientation': True
     }
-    files = {'file': image_bytes}
+    files = {'file': ('tiquet.jpg', image_bytes, 'image/jpeg')}
     resp = requests.post('https://api.ocr.space/parse/image', files=files, data=payload)
     return resp.json()
 

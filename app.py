@@ -22,28 +22,37 @@ def ocr_space_file(image_bytes):
 def extreu_dades(text):
     import re
 
-    empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
+    # 🔍 Empresa: agafem el nom en majúscules abans de "Nif:"
+    empresa_match = re.search(r'([A-ZÀ-Ú\s]{5,})\s*\nNif:', text)
+    empresa = empresa_match.group(1).strip() if empresa_match else "Desconeguda"
 
-    línies = text.splitlines()
+    # 🔍 Data
+    data_match = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
+    data = data_match.group(1) if data_match else ""
+
+    # 🔍 Preu total: busquem línia amb "TOTAL" i agafem número anterior si cal
+    linies = text.splitlines()
     import_final = None
-    for i, línia in enumerate(línies):
-        if "TOTAL" in línia.upper():
-            # Mirem si el número està a la mateixa línia
-            match = re.search(r'(\d+[.,]\d{2})', línia)
-            if match:
-                import_final = match.group(1).replace('.', ',')
-            else:
-                # Si no està a la mateixa línia, mirem la següent
-                if i + 1 < len(línies):
-                    match_sota = re.search(r'(\d+[.,]\d{2})', línies[i + 1])
-                    if match_sota:
-                        import_final = match_sota.group(1).replace('.', ',')
-            break
+    for i, linia in enumerate(linies):
+        if "TOTAL" in linia.upper():
+            # Comprova si el número està abans
+            if i >= 1:
+                num_match = re.search(r'(\d+[.,]\d{2})', linies[i - 1])
+                if num_match:
+                    import_final = num_match.group(1).replace('.', ',')
+                    break
+            # O a la mateixa línia (per si canvia en altres tiquets)
+            num_match = re.search(r'(\d+[.,]\d{2})', linia)
+            if num_match:
+                import_final = num_match.group(1).replace('.', ',')
+                break
 
     return {
-        "Empresa": empresa.group(1).strip() if empresa else "Desconeguda",
+        "Empresa": empresa,
+        "Data": data,
         "Import": import_final if import_final else "0,00"
     }
+
 
 st.title("🧾 Lectura de tiquets")
 upload = st.file_uploader("Puja una imatge (.jpg, .png)", type=['jpg', 'jpeg', 'png'])

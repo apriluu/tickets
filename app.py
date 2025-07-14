@@ -86,12 +86,3 @@ if upload:
             else:
                 st.error("❌ No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
 
-            st.success("✅ Dades extretes:")
-            st.json(dades)
-
-            df = pd.DataFrame([dades])
-            buf = BytesIO()
-            df.to_excel(buf, index=False, engine='openpyxl')
-            buf.seek(0)
-            st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
-

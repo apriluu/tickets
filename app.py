@@ -70,10 +70,22 @@ if upload:
             st.write(result)  # Mostra la resposta completa per depurar
 
         else:
-            parsed = result["ParsedResults"][0]["ParsedText"]
-            st.subheader("📝 Text extret (OCR):")
-            st.code(parsed)
-            dades = extreu_dades(parsed)
+            if "ParsedResults" in result and result["ParsedResults"]:
+                parsed = result["ParsedResults"][0]["ParsedText"]
+                st.subheader("📝 Text extret (OCR):")
+                st.code(parsed)
+                dades = extreu_dades(parsed)
+                st.success("✅ Dades extretes correctament:")
+                st.json(dades)
+
+                df = pd.DataFrame([dades])
+                buf = BytesIO()
+                df.to_excel(buf, index=False, engine='openpyxl')
+                buf.seek(0)
+                st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
+            else:
+                st.error("❌ No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
+
             st.success("✅ Dades extretes:")
             st.json(dades)
 

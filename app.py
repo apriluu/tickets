@@ -21,14 +21,17 @@ def ocr_space_file(image_bytes):
 
 def extreu_dades(text):
     import re
+
+    match = re.search(r'(?i)(TOTAL[^0-9\n]*|Import[^0-9\n]*|Targeta[^0-9\n]*)?(\d+[.,]\d{2})', text)
+
     empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
-    import_final = re.search(r'(?:TOTAL|Import).*?(\d+[,\.]\d{2})', text, re.IGNORECASE)
+
     return {
         "Empresa": empresa.group(1).strip() if empresa else "Desconeguda",
-        "Import": import_final.group(1).replace('.', ',') if import_final else "0,00"
+        "Import": match.group(2).replace('.', ',') if match else "0,00"
     }
 
-st.title("🧾 Lectura de tiquets via OCR.space")
+st.title("🧾 Lectura de tiquets")
 upload = st.file_uploader("Puja una imatge (.jpg, .png)", type=['jpg', 'jpeg', 'png'])
 
 if upload:

@@ -32,33 +32,32 @@ st.title("🧾 Lectura de tiquets via OCR.space")
 upload = st.file_uploader("Puja una imatge (.jpg, .png)", type=['jpg', 'jpeg', 'png'])
 
 if upload:
-    if upload:
-        img = Image.open(upload)
-        st.image(img, caption="Tiquet", use_container_width=True)
+    img = Image.open(upload)
+    st.image(img, caption="Tiquet", use_container_width=True)
 
-        if st.button("Processa i genera Excel"):
-            # 🔽 Converteix i comprimeix la imatge
-            img = img.convert("RGB")
-            compressed = BytesIO()
-            img.save(compressed, format="JPEG", optimize=True, quality=50)
-            compressed.seek(0)
+    if st.button("Processa i genera Excel"):
+        # 🔽 Converteix i comprimeix la imatge
+        img = img.convert("RGB")
+        compressed = BytesIO()
+        img.save(compressed, format="JPEG", optimize=True, quality=50)
+        compressed.seek(0)
 
-            # 📤 Envia la imatge comprimida a l'OCR
-            result = ocr_space_file(compressed)
+        # 📤 Envia la imatge comprimida a l'OCR
+        result = ocr_space_file(compressed)
 
-        if not result or "ParsedResults" not in result:
-            st.error("❌ Error en la resposta de l'OCR.")
-            st.write(result)  # Mostra la resposta completa per depurar
+    if not result or "ParsedResults" not in result:
+        st.error("❌ Error en la resposta de l'OCR.")
+        st.write(result)  # Mostra la resposta completa per depurar
 
-        else:
-            parsed = result["ParsedResults"][0]["ParsedText"]
-            dades = extreu_dades(parsed)
-            st.success("✅ Dades extretes:")
-            st.json(dades)
+    else:
+        parsed = result["ParsedResults"][0]["ParsedText"]
+        dades = extreu_dades(parsed)
+        st.success("✅ Dades extretes:")
+        st.json(dades)
 
-            df = pd.DataFrame([dades])
-            buf = BytesIO()
-            df.to_excel(buf, index=False, engine='openpyxl')
-            buf.seek(0)
-            st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
+        df = pd.DataFrame([dades])
+        buf = BytesIO()
+        df.to_excel(buf, index=False, engine='openpyxl')
+        buf.seek(0)
+        st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
 

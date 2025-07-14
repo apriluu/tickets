@@ -5,7 +5,7 @@ from io import BytesIO
 from PIL import Image
 
 # 📌 Personalitza aquí la clau API d'OCR.space
-OCR_SPACE_API_KEY = st.secrets["K87183764888957"]
+OCR_SPACE_API_KEY = st.secrets["ocr_space_api"]
 
 def ocr_space_file(image_bytes):
     payload = {

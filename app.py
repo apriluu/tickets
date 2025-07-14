@@ -67,6 +67,8 @@ if upload:
 
         else:
             parsed = result["ParsedResults"][0]["ParsedText"]
+            st.subheader("📝 Text extret (OCR):")
+            st.code(parsed)
             dades = extreu_dades(parsed)
             st.success("✅ Dades extretes:")
             st.json(dades)

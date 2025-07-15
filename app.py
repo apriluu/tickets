@@ -21,7 +21,7 @@ def ocr_space_file(image_bytes):
 
 def extreu_dades(text):
 
-    empresa = re.search(r'(?i)([A-ZÀ-Ú0-9\s\.,&-]{3,}S\.?L\.?)', text)
+    empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
     data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
     línies = text.splitlines()
@@ -87,4 +87,3 @@ if upload:
                 st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
             else:
                 st.error("❌ No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
-

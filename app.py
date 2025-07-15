@@ -3,8 +3,8 @@ import requests
 import pandas as pd
 from io import BytesIO
 from PIL import Image
+import re
 
-# 📌 Personalitza aquí la clau API d'OCR.space
 OCR_SPACE_API_KEY = st.secrets["ocr_space_api"]
 
 def ocr_space_file(image_bytes):
@@ -20,9 +20,8 @@ def ocr_space_file(image_bytes):
     return resp.json()
 
 def extreu_dades(text):
-    import re
 
-    empresa = re.search(r'MARC GIOVANNI ADDIS HERNANDEZ', text, re.IGNORECASE)
+    empresa = re.search(r'([A-ZÀ-Ú\s]{5,}SL)', text)
     data = re.search(r'Data[:\s]*(\d{2}/\d{2}/\d{4})', text)
 
     línies = text.splitlines()
@@ -38,6 +37,12 @@ def extreu_dades(text):
             if tots_els_imports:
                 import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
                 import_final = import_final.replace('.', ',')
+
+            if not import_final:
+                tots_els_imports = re.findall(r'(\d+[.,]\d{2})', text)
+                if tots_els_imports:
+                    import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
+                    import_final = import_final.replace('.', ',')
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",

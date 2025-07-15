@@ -87,3 +87,4 @@ if upload:
                 st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
             else:
                 st.error("❌ No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
+                st.write(result)  # Mostra la resposta completa per depurar

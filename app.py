@@ -27,18 +27,22 @@ def extreu_dades(text):
     línies = text.splitlines()
     import_final = None
 
-    for línia in línies:
-        if re.search(r'(total|eurots?|a pagar|importe)', línia, re.IGNORECASE):
-            preus = re.findall(r'(\d+[.,]\d{2})', línia)
-            if preus:
-                import_final = max(preus,key=lambda x:float(x.replace(',','')))
-                break
+    for i, línia in enumerate(línies):
+        if "TOTAL" in línia.upper():
+            tots_els_imports = []
+            for j in range(i - 1, max(i - 4, -1), -1):
+                possibles = re.findall(r'(\d+[.,]\d{2})', línies[j])
+                tots_els_imports.extend(possibles)
 
-        if not import_final:
-            tots_els_imports = re.findall(r'(\d+[.,]\d{2})', text)
             if tots_els_imports:
                 import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
                 import_final = import_final.replace('.', ',')
+
+            if not import_final:
+                tots_els_imports = re.findall(r'(\d+[.,]\d{2})', text)
+                if tots_els_imports:
+                    import_final = max(tots_els_imports, key=lambda x: float(x.replace(',', '.')))
+                    import_final = import_final.replace('.', ',')
 
     return {
         "Empresa": empresa.group(0).strip() if empresa else "Desconeguda",

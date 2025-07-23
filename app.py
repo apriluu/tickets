@@ -68,12 +68,12 @@ if upload:
 
         if not result or "ParsedResults" not in result:
             st.error("Error en la resposta de l'OCR.")
-            st.write(result)  # Mostra la resposta completa per depurar
+            st.write(result)
 
         else:
             if "ParsedResults" in result and result["ParsedResults"]:
                 parsed = result["ParsedResults"][0]["ParsedText"]
-                st.subheader("📝 Text extret (OCR):")
+                st.subheader("Text extret (OCR):")
                 st.code(parsed)
                 dades = extreu_dades(parsed)
                 st.success("Dades extretes correctament:")
@@ -86,4 +86,4 @@ if upload:
                 st.download_button("Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
             else:
                 st.error("No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
-                st.write(result)  # Mostra la resposta completa per depurar
+                st.write(result)

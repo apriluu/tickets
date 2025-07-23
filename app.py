@@ -51,7 +51,7 @@ def extreu_dades(text):
     }
 
 
-st.title("🧾 Lectura de tiquets")
+st.title("Lectura de tiquets")
 upload = st.file_uploader("Puja una imatge (.jpg, .png)", type=['jpg', 'jpeg', 'png'])
 
 if upload:
@@ -59,7 +59,6 @@ if upload:
     st.image(img, caption="Tiquet", use_container_width=True)
 
     if st.button("Processa i genera Excel"):
-        # 🔽 Converteix i comprimeix la imatge
         img = img.convert("RGB")
         compressed = BytesIO()
         img.save(compressed, format="JPEG", optimize=True, quality=50)
@@ -68,7 +67,7 @@ if upload:
         result = ocr_space_file(compressed)
 
         if not result or "ParsedResults" not in result:
-            st.error("❌ Error en la resposta de l'OCR.")
+            st.error("Error en la resposta de l'OCR.")
             st.write(result)  # Mostra la resposta completa per depurar
 
         else:
@@ -77,14 +76,14 @@ if upload:
                 st.subheader("📝 Text extret (OCR):")
                 st.code(parsed)
                 dades = extreu_dades(parsed)
-                st.success("✅ Dades extretes correctament:")
+                st.success("Dades extretes correctament:")
                 st.json(dades)
 
                 df = pd.DataFrame([dades])
                 buf = BytesIO()
                 df.to_excel(buf, index=False, engine='openpyxl')
                 buf.seek(0)
-                st.download_button("📥 Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
+                st.download_button("Descarrega Excel", buf, file_name="dades_tiquet.xlsx")
             else:
-                st.error("❌ No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
+                st.error("No s'han pogut extreure dades del tiquet. Torna-ho a provar amb una imatge més clara.")
                 st.write(result)  # Mostra la resposta completa per depurar
